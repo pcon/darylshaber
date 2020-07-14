@@ -1,0 +1,25 @@
+{
+  "name": "darylshaber",
+  "version": "1.0.0",
+  "description": "Darylshaber for the Discord world",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint .",
+    "start": "node index.js"
+  },
+  "author": "Patrick Connelly (patrick@connelly.dev)",
+  "license": "GPL-3.0-or-later",
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "csv-parser": "^2.3.3",
+    "eslint": "^7.4.0",
+    "moment": "^2.27.0"
+  },
+  "dependencies": {
+    "discord.js": "^12.2.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "lodash": "^4.17.19",
+    "mongodb": "^3.5.9"
+  }
+}

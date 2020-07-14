@@ -1,6 +1,11 @@
 const mongo = require('mongodb').MongoClient;
 
 const config = require('./config');
+const isempty = require('lodash/isEmpty');
+
+const DEFAULT_OPTS = {
+  useUnifiedTopology: true
+};
 
 /**
  * Adds a quote to the database
@@ -106,16 +111,49 @@ function getRandomUserQuoteId(channel, id) {
  */
 function connect() {
   return new Promise(function (resolve, reject) {
-    const opts = {
-      useUnifiedTopology: true
-    };
-
-    mongo.connect(config.db.url(), opts, function (error, db) {
+    mongo.connect(config.db.url(), DEFAULT_OPTS, function (error, db) {
       if (error) {
         reject(error);
       } else {
         global.db = db.db(config.db.name());
         resolve();
+      }
+    });
+  });
+}
+
+/**
+ * Connects to the database and inserts multiple records
+ * @param {Object[]} records The records to insert
+ * @param {String} collection The collection to insert into
+ * @returns {Promise} A promise for when the records have been updated
+ */
+function connectAndInsertMany(records, collection) {
+  return new Promise(function (resolve, reject) {
+    if (isempty(records)) {
+      resolve({
+        insertedCount: 0
+      });
+      return;
+    }
+
+    mongo.connect(config.db.url(), function (error, db) {
+      if (error) {
+        reject(error);
+      } else {
+        const db_collection = db.db(config.db.name()).collection(collection);
+
+        try {
+          db_collection.insertMany(records, function (insert_error, results) {
+            if (insert_error) {
+              reject(insert_error);
+            } else {
+              resolve(results);
+            }
+          });
+        } catch (insert_error) {
+          reject(insert_error);
+        }
       }
     });
   });
@@ -128,5 +166,8 @@ module.exports = {
     random: getRandomQuote,
     randomUser: getRandomUserQuote,
     randomUserId: getRandomUserQuoteId
+  },
+  utils: {
+    connectAndInsertMany: connectAndInsertMany
   }
 };

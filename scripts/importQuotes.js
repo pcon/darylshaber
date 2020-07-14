@@ -2,13 +2,13 @@ const csv = require('csv-parser');
 const fs = require('fs');
 const path = require('path');
 const moment = require('moment');
-const mongo = require('mongodb').MongoClient;
 
 const has = require('lodash/has');
-const isempty = require('lodash/isEmpty');
 const lowercase = require('lodash/toLower');
 
-const config = require('../config');
+const config = require('../utils/config');
+const db = require('../utils/db');
+
 const channel_map = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/channelmap.json'), 'utf8'));
 const user_map = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/usermap.json'), 'utf8'));
 
@@ -43,7 +43,6 @@ function addUserData(obj, data) {
  */
 function dataHandler(data) {
   const channel = lowercase(data.channel);
-  console.log(channel);
 
   if (!has(channel_map, channel)) {
     return;
@@ -64,29 +63,11 @@ function dataHandler(data) {
  * @returns {undefined}
  */
 function endHandler() {
-  if (!isempty(records)) {
-    mongo.connect(config.database.url, function (error, db) {
-      if (error) {
-        console.log(error);
-      } else {
-        const discord = db.db(config.database.name).collection('quotes');
-        try {
-          discord.insertMany(records, function (err, results) {
-            if (err) {
-              console.error(err);
-            } else {
-              console.log(results.insertedCount);
-              db.close();
-            }
-          });
-        } catch (err) {
-          console.error(err);
-        }
-      }
-    });
-  } else {
-    console.log('No records to insert');
-  }
+  db.utils.connectAndInsertMany(records, config.db.collections.quotes)
+    .then(function (results) {
+      console.log(results.insertdCount);
+    })
+    .catch(console.error);
 }
 
 fs.createReadStream(path.join(__dirname, '../data/quotes.csv'))

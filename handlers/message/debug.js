@@ -9,11 +9,17 @@ const secondary_handlers = {
 /**
  * Prints the channel to the console
  * @param {Object} message The message
- * @param {String} channel The channel name
+ * @param {String} name The channel name
  * @returns {undefined}
  */
-function findChannel(message, channel) {
-  console.log(`ID: ${global.client.channels.cache.find(c => c.name === channel).id}`);
+function findChannel(message, name) {
+  const channel = global.client.channels.cache.find(c => c.name === name);
+
+  if (channel) {
+    console.log(`ID: ${channel.id}`);
+  } else {
+    console.log(`Could not find channel named "${name}"`);
+  }
 }
 
 /**
@@ -24,7 +30,12 @@ function findChannel(message, channel) {
  */
 function findUser(message, username) {
   const user = global.client.users.cache.find(u => u.username === username);
-  console.log(`Id: ${user.id} - ${user.username}#${user.discriminator}`);
+
+  if (user) {
+    console.log(`Id: ${user.id} - ${user.username}#${user.discriminator}`);
+  } else {
+    console.log(`Could not find user named "${username}"`);
+  }
 }
 
 /**

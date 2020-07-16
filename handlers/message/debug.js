@@ -3,7 +3,8 @@ const split = require('lodash/split');
 
 const secondary_handlers = {
   'findchannel': findChannel,
-  'finduser': findUser
+  'finduser': findUser,
+  'dump': dumpMessage
 };
 
 /**
@@ -36,6 +37,15 @@ function findUser(message, username) {
   } else {
     console.log(`Could not find user named "${username}"`);
   }
+}
+
+/**
+ * Dumps the message to the console
+ * @param {Object} message The message
+ * @returns {undefined}
+ */
+function dumpMessage(message) {
+  console.log(message.content);
 }
 
 /**

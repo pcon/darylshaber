@@ -10,6 +10,7 @@
   "author": "Patrick Connelly (patrick@connelly.dev)",
   "license": "GPL-3.0-or-later",
   "devDependencies": {
+    "@caporal/core": "^2.0.2",
     "babel-eslint": "^10.1.0",
     "csv-parser": "^2.3.3",
     "eslint": "^7.4.0",

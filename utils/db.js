@@ -159,13 +159,53 @@ function connectAndInsertMany(records, collection) {
   });
 }
 
+/**
+ * Find quotes for a given query
+ * @param {Object} query The query
+ * @return {Promise<Object[]>|Error} The results
+ */
+function findQuotes(query) {
+  return new Promise(function (resolve, reject) {
+    global.db.collection(config.db.collections.quotes)
+      .find(query)
+      .toArray(function (error, results) {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+  });
+}
+
+/**
+ * Updates multiple records
+ * @param {Object} query The query
+ * @param {Object} value The new value to set
+ * @returns {Promise<Object[]>|Error} A promise for the results
+ */
+function updateMany(query, value) {
+  return new Promise(function (resolve, reject) {
+    global.db.collection(config.db.collections.quotes)
+      .updateMany(query, value, function (error, results) {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(results);
+        }
+      });
+  });
+}
+
 module.exports = {
   connect: connect,
   quote: {
     add: addQuote,
     random: getRandomQuote,
     randomUser: getRandomUserQuote,
-    randomUserId: getRandomUserQuoteId
+    randomUserId: getRandomUserQuoteId,
+    find: findQuotes,
+    updateMany: updateMany
   },
   utils: {
     connectAndInsertMany: connectAndInsertMany

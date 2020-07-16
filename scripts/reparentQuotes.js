@@ -1,8 +1,13 @@
 const {
   program
 } = require('@caporal/core');
+const fs = require('fs');
+const path = require('path');
+const has = require('lodash/has');
 
 const db = require('../utils/db');
+
+const user_map = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/usermap.json'), 'utf8'));
 
 /**
  * Check the options and assign them to global variables
@@ -16,13 +21,15 @@ function checkAndAssignOptions(options) {
       return;
     }
 
-    if (!options.id) {
-      reject(new Error('Id is required'));
-      return;
+    global.target_nick = options.nick;
+
+    if (!has(user_map, global.target_nick)) {
+      reject(new Error('Could not find id for nick'));
+      reject;
     }
 
-    global.target_nick = options.nick;
-    global.target_id = options.id;
+    global.target_id = user_map[global.target_nick];
+
     resolve();
   });
 }
@@ -39,7 +46,7 @@ function updateQuoter() {
 
     const value = {
       $set: {
-        quoter_id: `${global.target_id}`
+        quoter_id: global.target_id
       }
     };
 
@@ -64,7 +71,7 @@ function updateQuotee() {
 
     const value = {
       $set: {
-        quotee_id: `${global.target_id}`
+        quotee_id: global.target_id
       }
     };
 
@@ -87,14 +94,15 @@ function act(cmd) {
     checkAndAssignOptions(cmd.options)
       .then(updateQuoter)
       .then(updateQuotee)
-      .then(resolve)
+      .then(function () {
+        process.exit();
+      })
       .catch(reject);
   });
 }
 
 program
   .option('--nick <nick>', 'The nick to find in the database')
-  .option('--id <id>', 'The user id to reparent to')
   .action(act);
 
 program.run();
